@@ -8,10 +8,11 @@
 
 rm -rf build extract preprocess
 
-module module unload netcdf
+module unload netcdf
 module load netcdf/4.7.1
 
-export JULES_COMPILER=ifort
+#export JULES_COMPILER=ifort
+export JULES_COMPILER=gfortran
 export JULES_BUILD=normal
 export JULES_OMP=noomp
 export JULES_MPI=nompi

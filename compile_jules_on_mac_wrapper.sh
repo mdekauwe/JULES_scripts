@@ -22,5 +22,6 @@ export JULES_NETCDF_LIB_PATH=/opt/local/lib/
 # Need this for some issue with "rpath"
 export ncdf_ldflags_dynamic=
 
-fcm make -v -f etc/fcm-make/make.cfg $1
+fcm make -v -f etc/fcm-make/make.cfg --new
+#fcm make -v -f etc/fcm-make/make.cfg $1
 ##fcm make -vv -f etc/fcm-make/make.cfg $1

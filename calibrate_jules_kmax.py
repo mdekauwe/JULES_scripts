@@ -50,7 +50,8 @@ def calibrate_variable(fname_flux, output_nc_fname, output_dir,
 
 
     # Plot the outputs
-    script_to_run = "plot_timeseries_comparison_CTL_vs_hydraulics.py"
+    #script_to_run = "plot_timeseries_comparison_CTL_vs_hydraulics.py"
+    script_to_run = "plot_calibration_result.py"
 
     if var_string == "kmax_pft_io":
         argument = f"FR_Pue_{var_name}_equals_{var_value*1e9}.png"

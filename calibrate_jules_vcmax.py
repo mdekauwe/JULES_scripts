@@ -3,9 +3,6 @@
 """
 Calibrate the JULES physiology params
 
-NB. you need to change the vcmax flag (l_trait_phys=False) by hand yourself,
-but we should change this
-
 We're doing this for the first half of the timeseries 2000-8 and between May
 and Sept
 

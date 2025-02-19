@@ -61,7 +61,6 @@ def calibrate_variable(fname_flux, output_nc_fname, output_dir,
 
     try:
         subprocess.run(command, check=True)
-        #print("Script executed successfully.")
     except subprocess.CalledProcessError as e:
         print("Error while executing script:", e.stderr.decode())
 
@@ -71,12 +70,12 @@ def calibrate_variable(fname_flux, output_nc_fname, output_dir,
      r_value_gpp, r_value_qle,
      bias_gpp, bias_qle) = calc_stats(fname_flux, output_nc_fname)
 
-    print("RMSE GPP, RMSE Qle, RMSE jt")
-    print(rmse_gpp, rmse_qle, rmse_joint)
-    print("NS_GPP, NS_Qle, r_GPP, r_Qle, bias_GPP, bias_Qle")
-    print(nash_sutcliffe_gpp,nash_sutcliffe_qle, r_value_gpp, r_value_qle,
-          bias_gpp, bias_qle)
-    print("\n")
+
+    print("RMSE GPP  RMSE Qle  RMSE jt")
+    print("%.5f %.5f %.5f" % (rmse_gpp, rmse_qle, rmse_joint))
+    print("NS_GPP  NS_Qle  r_GPP  r_Qle bias_GPP  bias_Qle")
+    print("%.5f %.5f %.5f %.5f %.5f %.5f\n" % (nash_sutcliffe_gpp, nash_sutcliffe_qle, r_value_gpp, r_value_qle,
+          bias_gpp, bias_qle))
 
     if move_file:
         # Move the output file
@@ -102,11 +101,11 @@ def calc_stats(flux_fname, model_fname):
     start_date = datetime.date(2000, 1, 1)
     end_date = datetime.date(2008, 1, 1)
 
-    #df_mod = df_mod[(df_mod.index >= pd.Timestamp(start_date)) & \
-    #                (df_mod.index < pd.Timestamp(end_date))]
+    df_mod = df_mod[(df_mod.index >= pd.Timestamp(start_date)) & \
+                    (df_mod.index < pd.Timestamp(end_date))]
 
-    #df_obs = df_obs[(df_obs.index >= pd.Timestamp(start_date)) & \
-    #                (df_obs.index < pd.Timestamp(end_date))]
+    df_obs = df_obs[(df_obs.index >= pd.Timestamp(start_date)) & \
+                    (df_obs.index < pd.Timestamp(end_date))]
 
     # Filter only for May to Sept
     df_mod = df_mod[(df_mod.index.month >= 5) & (df_mod.index.month < 10)]

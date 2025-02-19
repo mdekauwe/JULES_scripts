@@ -84,7 +84,7 @@ def calibrate_variable(fname_flux, output_nc_fname, output_dir,
         except Exception as e:
             print(f"Error while moving the file: {e}")
 
-    return (rmse_gpp, rmse_qle)
+    return (rmse_gpp, rmse_qle, rmse_joint)
 
 
 def calc_stats(flux_fname, model_fname):

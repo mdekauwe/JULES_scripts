@@ -61,9 +61,10 @@ def main(site, met_fname, flux_fname, fname1, fname2, plot_fname=None):
     slope, intercept, r_value, p_value, std_err = linregress(m, o)
     print("Pearson's r = %.2f" % (r_value))
 
+    print("\nJULES min LAI: ", df1.LAI.min())
 
 
-    fig = plt.figure(figsize=(9,6))
+    fig = plt.figure(figsize=(9,9))
     fig.subplots_adjust(hspace=0.1)
     fig.subplots_adjust(wspace=0.2)
     plt.rcParams['text.usetex'] = False
@@ -78,22 +79,27 @@ def main(site, met_fname, flux_fname, fname1, fname2, plot_fname=None):
     labels_gen = label_generator('lower', start="(", end=")")
     colours = plt.cm.Set2(np.linspace(0, 1, 7))
 
-    ax1 = fig.add_subplot(2,1,1)
-    ax2 = fig.add_subplot(2,1,2)
+    ax1 = fig.add_subplot(4,1,1)
+    ax2 = fig.add_subplot(4,1,2)
+    ax3 = fig.add_subplot(4,1,3)
+    ax4 = fig.add_subplot(4,1,4)
     axx1 = ax1.twinx()
     axx2 = ax2.twinx()
+    axx3 = ax3.twinx()
+    axx4 = ax4.twinx()
 
-    axes = [ax1, ax2,]
-    axes2 = [axx1, axx2,]
-    vars = ["GPP", "Qle"]
+    axes = [ax1, ax2, ax3, ax4]
+    axes2 = [axx1, axx2, axx3, axx4]
+    vars = ["GPP", "Qle", "LAI", "theta_weight"]
 
     props = dict(boxstyle='round', facecolor='white', alpha=1.0,
                  ec="white")
     for a, x, v in zip(axes, axes2, vars):
 
-        a.plot(df_flx[v].index.to_pydatetime(),
-               df_flx[v].rolling(window=5).mean(), c=colours[1], lw=2.0,
-               ls="-", label="Observations")
+        if v != "LAI" and v != "theta_weight":
+            a.plot(df_flx[v].index.to_pydatetime(),
+                df_flx[v].rolling(window=5).mean(), c=colours[1], lw=2.0,
+                ls="-", label="Observations")
         a.plot(df1[v].index.to_pydatetime(), df1[v].rolling(window=5).mean(),
                c=colours[0], lw=1.5, ls="-", label="JULES")
         a.plot(df2[v].index.to_pydatetime(), df2[v].rolling(window=5).mean(),
@@ -110,9 +116,14 @@ def main(site, met_fname, flux_fname, fname1, fname2, plot_fname=None):
 
     ax1.set_ylim(0, 17)
     ax2.set_ylim(0, 150)
+    ax3.set_ylim(0, 4)
+    ax4.set_ylim(0, 0.4)
     axx1.set_yticks([0, 15, 30])
     axx2.set_yticks([0, 15, 30])
-    labels = ["GPP (g C m$^{-2}$ d$^{-1}$)", "LE (W m$^{-2}$)"]
+    axx3.set_yticks([0, 15, 30])
+    axx4.set_yticks([0, 15, 30])
+    labels = ["GPP (g C m$^{-2}$ d$^{-1}$)", "LE (W m$^{-2}$)", \
+              "LAI (m$^{2}$ m$^{-2}$)", "$\Theta$ (m$^{3}$ m$^{-3}$)"]
     for a, l in zip(axes, labels):
         a.set_ylabel(l, fontsize=12)
 
@@ -122,10 +133,14 @@ def main(site, met_fname, flux_fname, fname1, fname2, plot_fname=None):
     from matplotlib.ticker import MaxNLocator
     ax1.yaxis.set_major_locator(MaxNLocator(5))
     ax2.yaxis.set_major_locator(MaxNLocator(5))
+    ax3.yaxis.set_major_locator(MaxNLocator(5))
+    ax4.yaxis.set_major_locator(MaxNLocator(5))
     #axx1.yaxis.set_major_locator(MaxNLocator(3))
     #axx2.yaxis.set_major_locator(MaxNLocator(3))
 
     plt.setp(ax1.get_xticklabels(), visible=False)
+    plt.setp(ax2.get_xticklabels(), visible=False)
+    plt.setp(ax3.get_xticklabels(), visible=False)
     ax1.legend(numpoints=1, loc="best", frameon=False)
 
 
@@ -148,7 +163,7 @@ def read_cable_file(fname, type=None):
     if type == "CABLE":
         #vars_to_keep = ['weighted_psi_soil','psi_leaf','psi_soil','SoilMoist',\
         #                'LAI','GPP','Qle','TVeg','NEE']
-        vars_to_keep = ['LAI','GPP','Qle','TVeg','NEE']
+        vars_to_keep = ['LAI','GPP','Qle','TVeg','NEE','SoilMoist']
     elif type == "FLUX":
         vars_to_keep = ['GPP','Qle']
     elif type == "MET":
@@ -178,23 +193,23 @@ def read_cable_file(fname, type=None):
         df['Qle'] = ds['Qle'].values[:]
         df['TVeg'] = ds['TVeg'].values[:]
 
-        """
+
         zse = np.array([.022, .058, .154, .409, 1.085, 2.872])
 
-        frac1 = zse[0] / (zse[0] + zse[1])
-        frac2 = zse[1] / (zse[0] + zse[1])
-        frac3 = zse[2] / (zse[2] + zse[3])
-        frac4 = zse[3] / (zse[2] + zse[3])
-        frac5 = zse[4] / (zse[4] + zse[5])
-        frac6 = zse[5] / (zse[4] + zse[5])
+        frac1 = zse[0] / sum(zse)
+        frac2 = zse[1] / sum(zse)
+        frac3 = zse[2] / sum(zse)
+        frac4 = zse[3] / sum(zse)
+        frac5 = zse[4] / sum(zse)
+        frac6 = zse[5] / sum(zse)
 
-        df['theta1'] = (df['SoilMoist1'] * frac1) + \
-                       (df['SoilMoist2'] * frac2)
-        df['theta2'] = (df['SoilMoist3'] * frac3) + \
-                       (df['SoilMoist4'] * frac4)
-        df['theta3'] = (df['SoilMoist5'] * frac5) + \
-                       (df['SoilMoist6'] * frac6)
-        """
+        df['theta_weight'] = (ds['SoilMoist'][:,0] * frac1) + \
+                             (ds['SoilMoist'][:,1] * frac2) + \
+                             (ds['SoilMoist'][:,2] * frac3) + \
+                             (ds['SoilMoist'][:,3] * frac4) + \
+                             (ds['SoilMoist'][:,4] * frac5) + \
+                             (ds['SoilMoist'][:,5] * frac6)
+
 
     elif type == "MET":
         ds = ds[vars_to_keep].squeeze(dim=["x","y"], drop=True)
@@ -227,7 +242,8 @@ def resample_timestep(df, type=None):
         df['TVeg'] *= SEC_2_HOUR
         df['Evap'] *= SEC_2_HOUR
 
-        method = {'GPP':'sum', 'TVeg':'sum', "Qle":"mean"}
+        method = {'GPP':'sum', 'TVeg':'sum', "Qle":"mean", "LAI":"mean",
+                  "theta_weight":"mean"}
 
     elif type == "CABLE":
         # umol/m2/s -> g/C/60min
@@ -238,7 +254,8 @@ def resample_timestep(df, type=None):
         #df['TVeg'] *= SEC_2_HLFHOUR
         df['TVeg'] *= SEC_2_HOUR
 
-        method = {'GPP':'sum', 'TVeg':'sum', "Qle":"mean"}
+        method = {'GPP':'sum', 'TVeg':'sum', "Qle":"mean", "LAI":"mean",
+                 "theta_weight":"mean"}
 
     elif type == "FLUX":
         # umol/m2/s -> g/C/60min
@@ -259,7 +276,7 @@ def resample_timestep(df, type=None):
 
 def read_jules_file(fname, type=None):
 
-    vars_to_keep = ['GPP','Qle','Qh','LAI','TVeg','Evap']
+    vars_to_keep = ['GPP','Qle','Qh','LAI','TVeg','Evap','SoilMoist']
 
     ds = xr.open_dataset(fname, decode_times=False)
     time_jump = int(ds.time[1].values) - int(ds.time[0].values)
@@ -283,6 +300,19 @@ def read_jules_file(fname, type=None):
     df['LAI'] = ds['LAI'].values[:]
     df['TVeg'] = ds['TVeg'].values[:]
     df['Evap'] = ds['Evap'].values[:]
+
+    zse = np.array([.1, 0.25, 0.65, 2.0]) * 1000 # m to mm
+
+    frac1 = zse[0] / sum(zse)
+    frac2 = zse[1] / sum(zse)
+    frac3 = zse[2] / sum(zse)
+    frac4 = zse[3] / sum(zse)
+
+
+    df['theta_weight'] = (ds['SoilMoist'][:,0] / zse[0] * frac1) + \
+                         (ds['SoilMoist'][:,1] / zse[1] * frac2) + \
+                         (ds['SoilMoist'][:,2] / zse[2] * frac3) + \
+                         (ds['SoilMoist'][:,3] / zse[3] * frac4)
 
     start = reference_date.strip().split(" ")[0].replace("-","/")
     df['dates'] = pd.date_range(start=start, periods=len(df), freq=freq)
@@ -323,7 +353,9 @@ if __name__ == "__main__":
 
     fname1 = "/Users/xj21307/research/JULES/runs/roses/AU_Tum/outputs/AU_Tum/local_AU-Tum_fluxnet2015_AU-Tum.AU-Tum.nc"
     #fname2 = "outputs/profitmax_tumba.nc"
-    fname2 = "/Users/xj21307/research/CABLE/runs/ozflux_sites_profitmax_hydraulics_paper/outputs/standard_tumba.nc"
+    #fname2 = "/Users/xj21307/research/CABLE/runs/ozflux_sites_profitmax_hydraulics_paper/outputs/standard_tumba.nc"
+    fname2 = "/Users/xj21307/research/CABLE/runs/quick_jules_comp_tumba/outputs/standard_tumba.nc"
+    #fname2 = "/Users/xj21307/research/CABLE/runs/ozflux_sites_profitmax_hydraulics_paper/outputs/profitmax_tumba.nc"
 
     #odir = "/Users/mdekauwe/Dropbox/Documents/papers/Future_euc_drought_paper/figures/figs/"
     odir = "/Users/xj21307/Desktop/"

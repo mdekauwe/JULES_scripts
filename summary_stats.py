@@ -39,6 +39,9 @@ def rmse(m,o):
     #m,o = filter_nan(m,o)
     return np.sqrt(np.mean((m-o)**2))
 
+def joint_rmse(rmse1, n1, rmse2, n2):
+    return np.sqrt((n1 * rmse1**2 + n2 * rmse2**2) / (n1 + n2))
+    
 def mae(m,o):
     """ mean absolute error """
     #m,o = filter_nan(m,o)

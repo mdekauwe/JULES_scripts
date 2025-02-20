@@ -378,7 +378,7 @@ if __name__ == "__main__":
     update_timestamps(time_fname, '2009-01-01 00:00:00')
 
     # Specify the file name
-    rrmse_file_name = "rmse_satcon.txt"
+    rmse_file_name = "rmse_satcon.txt"
 
     # Open the file in append mode
     fp = open(rmse_file_name, "a")
